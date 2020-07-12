@@ -71,9 +71,6 @@ dependencies {
     implementation "org.modelmapper:modelmapper:2.3.0"
     implementation "org.apache.commons:commons-lang3:3.7"
 
-    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter:${junitVersion}"
-
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -96,7 +93,9 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-undertow"
     implementation "org.springframework.boot:spring-boot-starter-web"
     // or implementation "org.springframework.boot:spring-boot-starter"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+    }
 
     testImplementation "com.h2database:h2:1.4.191"
     compileOnly "com.h2database:h2:1.4.191"
@@ -163,12 +162,13 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+    systemProperty 'spring.profiles.active', 'test'
 }
 
 bootJar {
     enabled false
     /*enabled = true
-    mainClassName = "${platformGroup}.PlatformApplication"
+    mainClassName = "${groupId}.Application"
     launchScript()*/
 }
 

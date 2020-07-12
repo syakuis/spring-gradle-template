@@ -21,8 +21,8 @@ $ ./gradlew wrapper --gradle-version=6.5
 ```yaml
 logging:
   level:
-    org.springframework: debug
-    io.github.syakuis: trace
+    org.springframework: info
+    kr.co.parkingcloud.platform: trace
     org.hibernate.SQL: trace
     org.hibernate.type.descriptor.sql: trace
     org.hibernate.type.descriptor.sql.BasicBinder: trace
