@@ -3,7 +3,7 @@ package io.github.syakuis;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@Log4j2
+@Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 class ApplicationTest {
@@ -25,8 +25,8 @@ class ApplicationTest {
 
     @Test
     void hello() {
-        String name = i18n.getMessage("project.name");
-        Assertions.assertEquals("iParking Platform", name);
+        String name = i18n.getMessage("author.name");
+        Assertions.assertEquals("Seokkyun. Choi.", name);
         log.debug(name);
     }
 

@@ -1,4 +1,15 @@
-# Production Props
-
+# Production profile
 logging:
-  config: classpath:log4j2-prod.xml
+  level:
+    io.github.syakuis: info
+    org.hibernate.sql: off
+    org.hibernate.type.descriptor.sql.BasicBinder: off
+    org.hibernate.type.descriptor.sql.BasicExtractor: off
+  file:
+    path:
+spring:
+  main:
+    banner-mode: log
+  devtools:
+    livereload:
+      enabled: false

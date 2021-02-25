@@ -1,7 +1,7 @@
 buildscript {
     ext.groupId = "io.github.syaku"
     ext.versionName = "1.0.0.BUILD-SNAPSHOT"
-    ext.springBootVersion = "2.3.1.RELEASE"
+    ext.springBootVersion = "2.3.9.RELEASE"
     ext.junitVersion = "5.6.2"
     ext.lombokVersion = "1.18.12"
     ext.restDocsVersion = "2.0.4.RELEASE"
@@ -59,13 +59,20 @@ repositories {
 group groupId
 version versionName
 
-sourceCompatibility = "11"
-targetCompatibility = "11"
+sourceCompatibility = 11
+targetCompatibility = 11
+
+compileJava.options.encoding = 'UTF-8'
 
 configurations {
     implementation.exclude module: "spring-boot-starter-tomcat"
-    implementation.exclude module: "spring-boot-starter-logging"
     testImplementation.exclude group: "junit", module: "junit"
+}
+
+processResources {
+    filesMatching('*.yml') {
+        expand(project.properties)
+    }
 }
 
 dependencies {
@@ -79,8 +86,6 @@ dependencies {
 
     asciidoctor "org.springframework.restdocs:spring-restdocs-asciidoctor:${restDocsVersion}"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${restDocsVersion}"
-
-    implementation "org.springframework.boot:spring-boot-starter-log4j2"
 
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jacksonVersion}"
 
@@ -167,10 +172,9 @@ test {
 }
 
 bootJar {
-    enabled false
-    /*enabled = true
+    enabled = true
     mainClassName = "${groupId}.Application"
-    launchScript()*/
+    launchScript()
 }
 
 jar {
