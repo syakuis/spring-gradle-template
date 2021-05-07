@@ -20,10 +20,10 @@ logging:
     io.github.syakuis: trace
     org.springframework: info
     org.springframework.web: info
-    org.hibernate.sql: trace
-    #    org.hibernate.type.descriptor.sql: trace
+    org.hibernate.SQL: trace
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     org.hibernate.type.descriptor.sql.BasicExtractor: off
+    org.hibernate.engine.jdbc.batch.internal.BatchingBatch: off
 server:
   port: 8080
 #  forward-headers-strategy: native
@@ -45,11 +45,13 @@ spring:
     basename: i18n/message
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      driver-class-name: org.h2.Driver
-      jdbc-url: jdbc:h2:mem:testdb
-      username: sa
-      password:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    initialization-mode: never
+    schema: classpath:schema/schema.sql
+    data: classpath:schema/data.sql
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     open-in-view: false

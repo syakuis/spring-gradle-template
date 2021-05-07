@@ -2,9 +2,11 @@
 logging:
   level:
     io.github.syakuis: info
-    org.hibernate.sql: off
+    org.hibernate: info
+    org.hibernate.SQL: off
     org.hibernate.type.descriptor.sql.BasicBinder: off
     org.hibernate.type.descriptor.sql.BasicExtractor: off
+    org.hibernate.engine.jdbc.batch.internal.BatchingBatch: off
   file:
     path:
 spring:
