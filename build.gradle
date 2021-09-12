@@ -1,22 +1,22 @@
+// https://docs.spring.io/spring-boot/docs/2.4.5/reference/html/dependency-versions.html#dependency-versions
 buildscript {
     ext.groupId = "io.github.syaku"
-    ext.versionName = "1.0.0.BUILD-SNAPSHOT"
-    ext.springBootVersion = "2.3.9.RELEASE"
-    ext.junitVersion = "5.6.2"
-    ext.lombokVersion = "1.18.12"
-    ext.restDocsVersion = "2.0.4.RELEASE"
-    ext.jacksonVersion = "2.11.0"
+    ext.versionName = "1.0.0-SNAPSHOT"
+    ext.springBootVersion = "2.4.5"
+    ext.junitVersion = "5.7.2"
+    ext.lombokVersion = "1.18.20"
+    ext.restDocsVersion = "2.0.5.RELEASE"
+    ext.jacksonVersion = "2.11.4"
+    ext.h2Version = "1.4.200"
 
     repositories {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
         mavenCentral()
-        jcenter()
     }
 
     dependencies {
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.18"
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1"
         classpath "io.franzbecker:gradle-lombok:3.1.0"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
@@ -31,6 +31,7 @@ wrapper {
 
 apply plugin: "java"
 apply plugin: "java-library"
+apply plugin: "application"
 apply plugin: "idea"
 apply plugin: "io.franzbecker.gradle-lombok"
 apply plugin: "org.springframework.boot"
@@ -38,9 +39,8 @@ apply plugin: "io.spring.dependency-management"
 apply plugin: "org.asciidoctor.convert"
 apply plugin: "org.sonarqube"
 apply plugin: "jacoco"
-//apply plugin: "checkstyle"
+apply plugin: "maven-publish"
 
-// IntelliJ IDEA : project build path
 idea {
     module {
         inheritOutputDirs = true
@@ -51,14 +51,13 @@ idea {
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 group groupId
 version versionName
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 compileJava.options.encoding = 'UTF-8'
 
@@ -68,15 +67,12 @@ configurations {
 }
 
 processResources {
-    filesMatching('*.yml') {
+    filesMatching('application.yml') {
         expand(project.properties)
     }
 }
 
 dependencies {
-    implementation "org.modelmapper:modelmapper:2.3.0"
-    implementation "org.apache.commons:commons-lang3:3.7"
-
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -95,12 +91,10 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-undertow"
     implementation "org.springframework.boot:spring-boot-starter-web"
     // or implementation "org.springframework.boot:spring-boot-starter"
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
-    }
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
 
-    testImplementation "com.h2database:h2:1.4.191"
-    compileOnly "com.h2database:h2:1.4.191"
+    testImplementation "com.h2database:h2:${h2Version}"
+    compileOnly "com.h2database:h2:${h2Version}"
 }
 
 // <------- RestDocs & Asciidoctor
@@ -110,6 +104,10 @@ asciidoctor {
     attributes "snippets": snippetsDir
     inputs.dir snippetsDir
     dependsOn test
+}
+
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/docs')
 }
 // ------- RestDocs & Asciidoctor ->
 
@@ -127,11 +125,6 @@ sonarqube {
     }
 }
 
-//checkstyle {
-//    configFile = file("./.platform-settings/google-checkstyle.xml")
-//    toolVersion = '8.33'
-//}
-
 test {
     outputs.dir snippetsDir
     useJUnitPlatform()
@@ -141,12 +134,37 @@ test {
     systemProperty 'spring.profiles.active', 'test'
 }
 
+task copyAsciidoc(type: Copy) {
+    dependsOn asciidoctor
+    from file("${buildDir}/asciidoc/html5")
+    into file("src/main/resources/static/docs")
+}
+
+build {
+    dependsOn copyAsciidoc
+}
+
+application {
+    mainClass = "${groupId}.Application"
+}
+
+
 bootJar {
-    enabled = true
-    mainClassName = "${groupId}.Application"
+    enabled true
     launchScript()
+    dependsOn asciidoctor
+    from ("${asciidoctor.outputDir}/html5") {
+        into "BOOT-INF/classes/static/docs"
+    }
 }
 
 jar {
     enabled false
+}
+
+task createBuildYml {
+    doLast {
+        println "version: ${platformVersion}\n" +
+            "artifactId: ${rootProject.name}"
+    }
 }
