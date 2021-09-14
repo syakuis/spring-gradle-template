@@ -164,7 +164,7 @@ jar {
 
 task createBuildYml {
     doLast {
-        println "version: ${platformVersion}\n" +
+        println "version: ${versionName}\n" +
             "artifactId: ${rootProject.name}"
     }
 }
