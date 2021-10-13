@@ -1,13 +1,20 @@
 // https://docs.spring.io/spring-boot/docs/2.4.5/reference/html/dependency-versions.html#dependency-versions
 buildscript {
-    ext.groupId = "io.github.syaku"
-    ext.versionName = "1.0.0-SNAPSHOT"
-    ext.springBootVersion = "2.4.5"
-    ext.junitVersion = "5.7.2"
-    ext.lombokVersion = "1.18.20"
-    ext.restDocsVersion = "2.0.5.RELEASE"
-    ext.jacksonVersion = "2.11.4"
-    ext.h2Version = "1.4.200"
+    ext {
+        groupId = "io.github.syaku"
+        versionName = "1.0.0-SNAPSHOT"
+        // https://docs.spring.io/spring-boot/docs/2.4.5/reference/htmlsingle
+        springBootVersion = "2.4.5"
+        // https://docs.spring.io/spring-cloud/docs/2020.0.3/reference/html/
+        springCloudVersion = "2020.0.3"
+        junitVersion = "5.7.1"
+        lombokVersion = "1.18.12"
+        restDocsVersion = "2.0.5.RELEASE"
+        jacksonVersion = "2.11.4"
+        mapstructVersion = "1.4.2.Final"
+        querydslVersion = "4.4.0"
+        h2Version = "1.4.200"
+    }
 
     repositories {
         maven {
@@ -72,20 +79,36 @@ processResources {
     }
 }
 
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
 dependencies {
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    implementation "org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.0"
+
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    annotationProcessor "org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.0"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
+
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    testAnnotationProcessor "org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.0"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
+
+    implementation "org.apache.commons:commons-lang3:3.7"
+    implementation "commons-io:commons-io:2.6"
 
     asciidoctor "org.springframework.restdocs:spring-restdocs-asciidoctor:${restDocsVersion}"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${restDocsVersion}"
 
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jacksonVersion}"
-
-    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
-
-    compileOnly "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     implementation "org.springframework.boot:spring-boot-starter-validation"
 
     implementation "org.springframework.boot:spring-boot-starter-undertow"
@@ -93,23 +116,20 @@ dependencies {
     // or implementation "org.springframework.boot:spring-boot-starter"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
 
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jacksonVersion}"
+    implementation "com.querydsl:querydsl-jpa:${querydslVersion}"
+    annotationProcessor(
+        "jakarta.persistence:jakarta.persistence-api",
+        "jakarta.annotation:jakarta.annotation-api",
+        "com.querydsl:querydsl-apt:${querydslVersion}:jpa"
+    )
+
     testImplementation "com.h2database:h2:${h2Version}"
     compileOnly "com.h2database:h2:${h2Version}"
-}
 
-// <------- RestDocs & Asciidoctor
-def snippetsDir = file("${buildDir}/generated-snippets")
-
-asciidoctor {
-    attributes "snippets": snippetsDir
-    inputs.dir snippetsDir
-    dependsOn test
+    testImplementation "org.springframework.cloud:spring-cloud-starter-contract-stub-runner"
 }
-
-asciidoctor.doFirst {
-    delete file('src/main/resources/static/docs')
-}
-// ------- RestDocs & Asciidoctor ->
 
 sonarqube {
     properties {
@@ -125,6 +145,22 @@ sonarqube {
     }
 }
 
+// <------- RestDocs & Asciidoctor
+def snippetsDir = file("${buildDir}/generated-snippets")
+
+asciidoctor {
+    attributes "snippets": snippetsDir
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+task copyAsciidoc(type: Copy) {
+    dependsOn asciidoctor
+    from file("${buildDir}/asciidoc/html5")
+    into file("src/main/resources/static/docs")
+}
+// ------- RestDocs & Asciidoctor ->
+
 test {
     outputs.dir snippetsDir
     useJUnitPlatform()
@@ -134,10 +170,8 @@ test {
     systemProperty 'spring.profiles.active', 'test'
 }
 
-task copyAsciidoc(type: Copy) {
-    dependsOn asciidoctor
-    from file("${buildDir}/asciidoc/html5")
-    into file("src/main/resources/static/docs")
+clean {
+    delete file('src/main/resources/static/docs')
 }
 
 build {
@@ -160,11 +194,4 @@ bootJar {
 
 jar {
     enabled false
-}
-
-task createBuildYml {
-    doLast {
-        println "version: ${versionName}\n" +
-            "artifactId: ${rootProject.name}"
-    }
 }

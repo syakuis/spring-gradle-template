@@ -1,5 +1,17 @@
 # Spring Framework Template for Gradle
 
+## Dependency Versions
+
+- Spring boot 2.4.5
+- Spring Cloud 2020.0.3
+- Spring RestDocs
+- Spring Data JPA
+- QueryDSL
+- Junit 5.7.1
+- WireMock
+- Lombok
+- MapStruct
+
 ## Installing Gradle 6.5
 
 https://docs.gradle.org/current/userguide/installation.html
