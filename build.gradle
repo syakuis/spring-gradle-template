@@ -71,6 +71,7 @@ compileJava.options.encoding = 'UTF-8'
 configurations {
     implementation.exclude module: "spring-boot-starter-tomcat"
     testImplementation.exclude group: "junit", module: "junit"
+    querydsl.extendsFrom compileClasspath
 }
 
 processResources {
