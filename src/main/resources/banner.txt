@@ -8,4 +8,3 @@
      |___/                         |___/
 
 :: Spring Boot ::        ${spring-boot.version}
-::  ${application.name}  ::        ${application.version}

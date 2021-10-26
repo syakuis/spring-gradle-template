@@ -1,15 +1,3 @@
-# Develop or Default profile
-application:
-  name: ${rootProject.name}
-  version: ${version}
-debug: false
-trace: false
-logging:
-  level:
-    root: info
-    org.springframework: info
-    org.springframework.web: info
-    io.github.syakuis: trace
 server:
   port: 8080
 #  forward-headers-strategy: native
@@ -24,12 +12,10 @@ server:
 spring:
   config:
     import:
+      - classpath:properties/develop.yml
       - classpath:properties/datasource-jpa.yml
       - classpath:properties/logback.yml
   main:
     banner-mode: console
-  devtools:
-    livereload:
-      enabled: true
   messages:
     basename: i18n/message

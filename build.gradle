@@ -1,11 +1,11 @@
 // https://docs.spring.io/spring-boot/docs/2.4.5/reference/html/dependency-versions.html#dependency-versions
+// https://docs.spring.io/spring-boot/docs/2.4.5/reference/htmlsingle
+// https://docs.spring.io/spring-cloud/docs/2020.0.3/reference/html/
 buildscript {
     ext {
         groupId = "io.github.syaku"
         versionName = "1.0.0-SNAPSHOT"
-        // https://docs.spring.io/spring-boot/docs/2.4.5/reference/htmlsingle
         springBootVersion = "2.4.5"
-        // https://docs.spring.io/spring-cloud/docs/2020.0.3/reference/html/
         springCloudVersion = "2020.0.3"
         junitVersion = "5.7.1"
         lombokVersion = "1.18.12"
@@ -33,28 +33,17 @@ buildscript {
 }
 
 wrapper {
-    gradleVersion = "6.5"
+    gradleVersion = "7.2"
 }
 
 apply plugin: "java"
-apply plugin: "java-library"
 apply plugin: "application"
-apply plugin: "idea"
 apply plugin: "io.franzbecker.gradle-lombok"
 apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 apply plugin: "org.asciidoctor.convert"
 apply plugin: "org.sonarqube"
 apply plugin: "jacoco"
-apply plugin: "maven-publish"
-
-idea {
-    module {
-        inheritOutputDirs = true
-        outputDir = compileJava.destinationDir
-        testOutputDir = compileTestJava.destinationDir
-    }
-}
 
 repositories {
     mavenCentral()
@@ -185,7 +174,6 @@ build {
 application {
     mainClass = "${groupId}.Application"
 }
-
 
 bootJar {
     enabled true

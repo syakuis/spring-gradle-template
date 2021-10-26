@@ -12,14 +12,14 @@
 - Lombok
 - MapStruct
 
-## Installing Gradle 6.5
+## Installing Gradle
 
 https://docs.gradle.org/current/userguide/installation.html
 
 spring boot 2.3.x 부터 gradle 6.x 버전 필요
 
 ```
-$ ./gradlew wrapper --gradle-version=6.5
+$ ./gradlew wrapper --gradle-version=7.2
 ```
 
 ## 로컬 개발시 properties 를 커스텀이 필요할 경우

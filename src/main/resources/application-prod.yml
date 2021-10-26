@@ -1,4 +1,3 @@
-# Production profile
 logging:
   level:
     io.github.syakuis: info
@@ -12,6 +11,3 @@ logging:
 spring:
   main:
     banner-mode: log
-  devtools:
-    livereload:
-      enabled: false
