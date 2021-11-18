@@ -15,10 +15,10 @@ endif::[]
 WARNING: 경고 내용
 ****
 
-[[introduction]]
+
 == 소개
 
-[[introduction]]
+
 == 서비스 환경
 
 |===
