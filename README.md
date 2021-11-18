@@ -1,5 +1,11 @@
 # Spring Framework Template for Gradle
 
+## 변경사항
+
+### 2021. 11. 18.
+gradle 7.3 변경
+asciidoctor plugin 변경
+
 ## Dependency Versions
 
 - Spring boot 2.4.5
