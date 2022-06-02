@@ -1,4 +1,4 @@
-package io.github.syakuis.config;
+package io.github.syakuis.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

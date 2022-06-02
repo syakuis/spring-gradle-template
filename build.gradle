@@ -8,7 +8,7 @@ buildscript {
         springBootVersion = "2.4.5"
         springCloudVersion = "2020.0.3"
         junitVersion = "5.7.1"
-        lombokVersion = "1.18.12"
+        lombokVersion = "1.18.22"
         restDocsVersion = "2.0.5.RELEASE"
         jacksonVersion = "2.11.4"
         mapstructVersion = "1.4.2.Final"
@@ -25,7 +25,6 @@ buildscript {
 
     dependencies {
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1"
-        classpath "io.franzbecker:gradle-lombok:3.1.0"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
         classpath "org.asciidoctor:asciidoctor-gradle-jvm:3.3.2"
@@ -38,7 +37,6 @@ wrapper {
 
 apply plugin: "java"
 apply plugin: "application"
-apply plugin: "io.franzbecker.gradle-lombok"
 apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 apply plugin: "org.asciidoctor.jvm.convert"
@@ -52,8 +50,8 @@ repositories {
 group groupId
 version versionName
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 compileJava.options.encoding = 'UTF-8'
 
