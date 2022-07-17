@@ -8,12 +8,14 @@ buildscript {
         springBootVersion = "2.4.5"
         springCloudVersion = "2020.0.3"
         junitVersion = "5.7.1"
-        lombokVersion = "1.18.22"
-        restDocsVersion = "2.0.5.RELEASE"
-        jacksonVersion = "2.11.4"
-        mapstructVersion = "1.4.2.Final"
-        querydslVersion = "4.4.0"
+        lombokVersion = '1.18.24'
+        jacksonVersion = '2.13.3'
+        mapstructVersion = '1.5.1.Final'
+        querydslVersion = '5.0.0'
         h2Version = "1.4.200"
+
+        restDocsVersion = '2.0.6.RELEASE'
+        snippetsDir = file('build/generated-snippets')
     }
 
     repositories {
@@ -57,12 +59,12 @@ compileJava.options.encoding = 'UTF-8'
 
 configurations {
     implementation.exclude module: "spring-boot-starter-tomcat"
-    testImplementation.exclude group: "junit", module: "junit"
     querydsl.extendsFrom compileClasspath
+    asciidoctorExt
 }
 
 processResources {
-    filesMatching('application.yml') {
+    filesMatching('*.yml') {
         expand(project.properties)
     }
 }
@@ -75,24 +77,25 @@ dependencyManagement {
 
 dependencies {
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
-    implementation "org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.0"
+    implementation "org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.1"
 
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-    annotationProcessor "org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.0"
+    annotationProcessor 'org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.1'
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
 
     testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-    testAnnotationProcessor "org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.0"
+    testAnnotationProcessor 'org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.1'
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
 
-    implementation "org.apache.commons:commons-lang3:3.7"
-    implementation "commons-io:commons-io:2.6"
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'commons-io:commons-io:2.11.0'
 
+    asciidoctorExt "org.springframework.restdocs:spring-restdocs-asciidoctor:${restDocsVersion}"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${restDocsVersion}"
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
@@ -113,6 +116,7 @@ dependencies {
         "com.querydsl:querydsl-apt:${querydslVersion}:jpa"
     )
 
+    // 호환성 문제로 1버전을 유지한다.
     testImplementation "com.h2database:h2:${h2Version}"
     compileOnly "com.h2database:h2:${h2Version}"
 
@@ -136,24 +140,12 @@ sonarqube {
     }
 }
 
-// <------- RestDocs & Asciidoctor
-def snippetsDir = file("${buildDir}/generated-snippets")
 
 asciidoctor {
     inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
     dependsOn test
 }
-
-asciidoctor.doFirst {
-    delete file('src/main/resources/static/docs')
-}
-
-task copyAsciidoc(type: Copy) {
-    dependsOn asciidoctor
-    from file("${buildDir}/asciidoc/html5")
-    into file("src/main/resources/static/docs")
-}
-// ------- RestDocs & Asciidoctor ->
 
 test {
     outputs.dir snippetsDir
@@ -164,20 +156,16 @@ test {
     systemProperty 'spring.profiles.active', 'test'
 }
 
-build {
-    dependsOn copyAsciidoc
-}
-
 application {
-    mainClass = "${groupId}.Application"
+    mainClass = 'io.github.syakuis.Application'
 }
 
 bootJar {
     enabled true
     launchScript()
     dependsOn asciidoctor
-    from ("${asciidoctor.outputDir}/html5") {
-        into "BOOT-INF/classes/static/docs"
+    from ("${asciidoctor.outputDir}") {
+        into "BOOT-INF/classes/static/api-docs"
     }
 }
 

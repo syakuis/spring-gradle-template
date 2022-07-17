@@ -1,13 +1,9 @@
 # Spring Framework Template for Gradle
 
-## 변경사항
 
-### 2021. 11. 18.
-gradle 7.3 변경
-asciidoctor plugin 변경
+## Package Versions
 
-## Dependency Versions
-
+- java 17
 - Spring boot 2.4.5
 - Spring Cloud 2020.0.3
 - Spring RestDocs
