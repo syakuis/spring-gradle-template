@@ -20,7 +20,7 @@ jobs:
         distribution: 'adopt'
 
     - name: Build with Gradle
-      run: ./gradlew -Pspring.profiles.active=test clean :ㅈㅂ
+      run: ./gradlew -Pspring.profiles.active=test clean
 
     - name: Lint with SonarQube
       run: ./gradlew sonarqube -x test -Pspring.profiles.active=test

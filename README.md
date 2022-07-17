@@ -24,7 +24,7 @@ spring boot 2.3.x 부터 gradle 6.x 버전 필요
 $ ./gradlew wrapper --gradle-version=7.2
 ```
 
-## 로컬 개발시 properties 를 커스텀이 필요할 경우
+## 로컬 개발시 spring application properties 설정
 
 스프링 profile 의 기본 설정은 default 이다. 설정 커스텀이 필요할 경우 `application-default.yml` 파일을 만들어 사용하면 됩니다.
 
