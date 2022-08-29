@@ -29,9 +29,8 @@ server:
 #      enabled: false
 #      file-date-format: .yyyy-MM-dd
 spring:
-  devtools:
-    livereload:
-      enabled: false
+  application:
+    name: template
   config:
     import:
       - classpath:properties/logback.yml
