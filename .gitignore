@@ -1,7 +1,7 @@
 application-default.yml
 application-default.properties
 build.yml
-src/main/resources/static/docs
+src/main/resources/static/api-docs
 
 *~
 .DS_Store

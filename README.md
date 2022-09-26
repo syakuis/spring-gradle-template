@@ -3,13 +3,13 @@
 
 ## Package Versions
 
-- java 17
-- Spring boot 2.4.5
-- Spring Cloud 2020.0.3
+- Java 17
+- Gradle 7.5
+- Spring boot 2.7.3
+- Spring Cloud 2021.0.3
 - Spring RestDocs
 - Spring Data JPA
 - QueryDSL
-- Junit 5.7.1
 - WireMock
 - Lombok
 - MapStruct

@@ -3,6 +3,7 @@ package io.github.syakuis.configuration.support;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
@@ -27,13 +28,13 @@ public final class SimpleObjectMapper {
         module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT)));
         module.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern(DATE_FORMAT)));
 
-        ObjectMapper mapper = objectMapper.copy();
-        mapper.setTimeZone(TimeZone.getTimeZone("UTC"));
+        ObjectMapper mapper = objectMapper != null ? objectMapper.copy() : new ObjectMapper();
+        mapper.registerModule(new Hibernate5Module());
         mapper.registerModule(new ParameterNamesModule());
         mapper.registerModule(new Jdk8Module());
+        mapper.setTimeZone(TimeZone.getTimeZone("UTC"));
         mapper.registerModule(module);
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-
         return mapper;
     }
 }

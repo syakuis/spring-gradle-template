@@ -1,3 +1,6 @@
+ifndef::snippets[]
+:snippets: ../../../build/generated-snippets
+endif::[]
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
@@ -6,6 +9,7 @@
 :sectlinks:
 
 = 제목
+Doc Writer <syaku@naver.com>
 
 ****
 WARNING: 경고문

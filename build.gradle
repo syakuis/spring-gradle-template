@@ -1,16 +1,17 @@
 // https://docs.spring.io/spring-boot/docs/2.7.3/reference/html/dependency-versions.html#dependency-versions
 // https://docs.spring.io/spring-boot/docs/2.7.3/reference/htmlsingle
-// https://docs.spring.io/spring-cloud/docs/2020.0.3/reference/html/
+// https://docs.spring.io/spring-cloud/docs/2021.0.3/reference/html/
 buildscript {
     ext {
         groupId = "io.github.syaku"
         versionName = "1.0.0-SNAPSHOT"
         springBootVersion = "2.7.3"
-        springCloudVersion = "2020.0.3"
-        junitVersion = "5.7.1"
+        springCloudVersion = "2021.0.3"
         lombokVersion = '1.18.24'
         jacksonVersion = '2.13.3'
-        mapstructVersion = '1.5.1.Final'
+        mapStructVersion = '1.5.2.Final'
+        mapStructExtensionsVersion = '0.1.1'
+        lombokMapStructVersion = '0.2.0'
         querydslVersion = '5.0.0'
         // 2 버전은 호환성 이슈가 있어 업그레이드 하지 않음.
         h2Version = "1.4.200"
@@ -35,7 +36,7 @@ buildscript {
 }
 
 wrapper {
-    gradleVersion = "7.3"
+    gradleVersion = "7.5.1"
 }
 
 apply plugin: "java"
@@ -46,8 +47,19 @@ apply plugin: "org.asciidoctor.jvm.convert"
 apply plugin: "org.sonarqube"
 apply plugin: "jacoco"
 
+ext.publisherUsername = project.hasProperty("publisher.username") ? project.findProperty("publisher.username") : ''
+ext.publisherPassword = project.hasProperty("publisher.password") ? project.findProperty("publisher.password") : ''
+
 repositories {
     mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/syakuis/spring-gradle-template")
+        credentials {
+            username publisherUsername
+            password publisherPassword
+        }
+    }
 }
 
 group groupId
@@ -64,6 +76,12 @@ configurations {
     asciidoctorExt
 }
 
+//스냅샷 패키지 내려 받기 않을때 캐시 조절
+//configurations.all {
+//    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+//    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
+//}
+
 processResources {
     filesMatching('*.yml') {
         expand(project.properties)
@@ -77,24 +95,24 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
-    implementation "org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.1"
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'commons-io:commons-io:2.11.0'
+
+    implementation "org.mapstruct:mapstruct:${mapStructVersion}"
+    implementation "org.mapstruct.extensions.spring:mapstruct-spring-annotations:${mapStructExtensionsVersion}"
 
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 
-    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-    annotationProcessor 'org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.1'
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapStructVersion}"
+    annotationProcessor "org.mapstruct.extensions.spring:mapstruct-spring-annotations:${mapStructExtensionsVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapStructVersion}"
 
-    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-    testAnnotationProcessor 'org.mapstruct.extensions.spring:mapstruct-spring-annotations:0.1.1'
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapStructVersion}"
+    testAnnotationProcessor "org.mapstruct.extensions.spring:mapstruct-spring-annotations:${mapStructExtensionsVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-    testAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
-
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'commons-io:commons-io:2.11.0'
+    testAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapStructVersion}"
 
     asciidoctorExt "org.springframework.restdocs:spring-restdocs-asciidoctor:${restDocsVersion}"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${restDocsVersion}"
@@ -140,11 +158,21 @@ sonarqube {
     }
 }
 
-
 asciidoctor {
     inputs.dir snippetsDir
     configurations 'asciidoctorExt'
     dependsOn test
+}
+
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/api-docs')
+}
+
+task copyDocument(type: Copy) {
+    dependsOn asciidoctor
+
+    from file("${asciidoctor.outputDir}")
+    into file("src/main/resources/static/api-docs")
 }
 
 test {
@@ -163,10 +191,6 @@ application {
 bootJar {
     enabled true
     launchScript()
-    dependsOn asciidoctor
-    from ("${asciidoctor.outputDir}") {
-        into "BOOT-INF/classes/static/api-docs"
-    }
 }
 
 jar {
