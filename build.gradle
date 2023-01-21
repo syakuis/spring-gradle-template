@@ -17,7 +17,7 @@ buildscript {
         h2Version = "1.4.200"
 
         restDocsVersion = '2.0.6.RELEASE'
-        snippetsDir = file('build/generated-snippets')
+        snippetsDir = file("$buildDir/generated-snippets")
     }
 
     repositories {
@@ -164,17 +164,6 @@ asciidoctor {
     dependsOn test
 }
 
-asciidoctor.doFirst {
-    delete file('src/main/resources/static/api-docs')
-}
-
-task copyDocument(type: Copy) {
-    dependsOn asciidoctor
-
-    from file("${asciidoctor.outputDir}")
-    into file("src/main/resources/static/api-docs")
-}
-
 test {
     outputs.dir snippetsDir
     useJUnitPlatform()
@@ -191,6 +180,10 @@ application {
 bootJar {
     enabled true
     launchScript()
+    dependsOn asciidoctor
+    from ("${asciidoctor.outputDir}") {
+        into "BOOT-INF/classes/static/api-docs"
+    }
 }
 
 jar {
