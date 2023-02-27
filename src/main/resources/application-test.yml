@@ -1,4 +1,12 @@
+server:
+  port: -1
+  servlet:
+    encoding:
+      force-response: true
 spring:
   jpa:
     hibernate:
       ddl-auto: create
+  web:
+    locale: ko_KR
+    locale-resolver: fixed
