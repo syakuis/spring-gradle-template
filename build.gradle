@@ -1,12 +1,12 @@
-// https://docs.spring.io/spring-boot/docs/2.7.3/reference/html/dependency-versions.html#dependency-versions
-// https://docs.spring.io/spring-boot/docs/2.7.3/reference/htmlsingle
-// https://docs.spring.io/spring-cloud/docs/2021.0.3/reference/html/
+// https://docs.spring.io/spring-boot/docs/2.7.9/reference/html/dependency-versions.html#dependency-versions
+// https://docs.spring.io/spring-boot/docs/2.7.9/reference/htmlsingle
+// https://docs.spring.io/spring-cloud/docs/2021.0.5/reference/html/
 buildscript {
     ext {
         groupId = "io.github.syaku"
         versionName = "1.0.0-SNAPSHOT"
-        springBootVersion = "2.7.3"
-        springCloudVersion = "2021.0.3"
+        springBootVersion = "2.7.9"
+        springCloudVersion = "2021.0.5"
         lombokVersion = '1.18.24'
         jacksonVersion = '2.13.3'
         mapStructVersion = '1.5.2.Final'
@@ -36,7 +36,7 @@ buildscript {
 }
 
 wrapper {
-    gradleVersion = "7.5.1"
+    gradleVersion = "7.6"
 }
 
 apply plugin: "java"
@@ -73,7 +73,7 @@ compileJava.options.encoding = 'UTF-8'
 configurations {
     implementation.exclude module: "spring-boot-starter-tomcat"
     querydsl.extendsFrom compileClasspath
-    asciidoctorExt
+    asciidoctorExtensions
 }
 
 //스냅샷 패키지 내려 받기 않을때 캐시 조절
@@ -114,7 +114,7 @@ dependencies {
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapStructVersion}"
 
-    asciidoctorExt "org.springframework.restdocs:spring-restdocs-asciidoctor:${restDocsVersion}"
+    asciidoctorExtensions "org.springframework.restdocs:spring-restdocs-asciidoctor:${restDocsVersion}"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${restDocsVersion}"
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
@@ -144,8 +144,8 @@ dependencies {
 sonarqube {
     properties {
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.organization", "syakuis-github"
-        property "sonar.projectKey", "syakuis-github"
+        property "sonar.organization", ""
+        property "sonar.projectKey", ""
         property "sonar.projectName", "spring-gradle-template"
         property "sonar.language", "java"
         property "sonar.sourceEncoding", "UTF-8"
@@ -160,7 +160,7 @@ sonarqube {
 
 asciidoctor {
     inputs.dir snippetsDir
-    configurations 'asciidoctorExt'
+    configurations 'asciidoctorExtensions'
     dependsOn test
 }
 
