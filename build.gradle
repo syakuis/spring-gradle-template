@@ -5,6 +5,7 @@ buildscript {
     ext {
         groupId = "io.github.syaku"
         versionName = "1.0.0-SNAPSHOT"
+
         springBootVersion = "2.7.9"
         springCloudVersion = "2021.0.5"
         lombokVersion = '1.18.24'
@@ -32,6 +33,7 @@ buildscript {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
         classpath "org.asciidoctor:asciidoctor-gradle-jvm:3.3.2"
+        classpath "gradle.plugin.com.google.gradle:osdetector-gradle-plugin:1.7.2"
     }
 }
 
@@ -44,11 +46,17 @@ apply plugin: "application"
 apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 apply plugin: "org.asciidoctor.jvm.convert"
+apply plugin: "maven-publish"
 apply plugin: "org.sonarqube"
 apply plugin: "jacoco"
+apply plugin: "com.google.osdetector"
 
-ext.publisherUsername = project.hasProperty("publisher.username") ? project.findProperty("publisher.username") : ''
-ext.publisherPassword = project.hasProperty("publisher.password") ? project.findProperty("publisher.password") : ''
+ext.repoName = 'nexus3-repository'
+ext.repoHost = project.hasProperty("repo.host") ? project.findProperty("repo.host") : ''
+ext.repoUsername = project.hasProperty("repo.username") ? project.findProperty("repo.username") : ''
+ext.repoPassword = project.hasProperty("repo.password") ? project.findProperty("repo.password") : ''
+ext.repoSnapshotsUrl = "${repoHost}/repository/maven-snapshots/"
+ext.repoReleasesUrl = "${repoHost}/repository/maven-releases/"
 
 repositories {
     mavenCentral()
@@ -56,8 +64,8 @@ repositories {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/syakuis/spring-gradle-template")
         credentials {
-            username publisherUsername
-            password publisherPassword
+            username repoUsername
+            password repoPassword
         }
     }
 }
@@ -95,6 +103,10 @@ dependencyManagement {
 }
 
 dependencies {
+    if (osdetector.arch.equals("aarch_64")) {
+        implementation "io.netty:netty-resolver-dns-native-macos:4.1.79.Final:osx-aarch_64"
+    }
+
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'commons-io:commons-io:2.11.0'
 
@@ -114,16 +126,11 @@ dependencies {
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapStructVersion}"
 
-    asciidoctorExtensions "org.springframework.restdocs:spring-restdocs-asciidoctor:${restDocsVersion}"
-    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${restDocsVersion}"
-
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    implementation "org.springframework.boot:spring-boot-starter-validation"
 
-    implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-web"
-    // or implementation "org.springframework.boot:spring-boot-starter"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    implementation "org.springframework.boot:spring-boot-starter-undertow"
 
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jacksonVersion}"
@@ -135,8 +142,12 @@ dependencies {
         "com.querydsl:querydsl-apt:${querydslVersion}:jpa"
     )
 
-    testImplementation "com.h2database:h2:${h2Version}"
     compileOnly "com.h2database:h2:${h2Version}"
+    testImplementation "com.h2database:h2:${h2Version}"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    asciidoctorExtensions "org.springframework.restdocs:spring-restdocs-asciidoctor:${restDocsVersion}"
+    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:${restDocsVersion}"
 
     testImplementation "org.springframework.cloud:spring-cloud-starter-contract-stub-runner"
 }
@@ -189,3 +200,27 @@ bootJar {
 jar {
     enabled false
 }
+
+
+publishing {
+    repositories {
+        maven {
+            name = repoName
+            url = version.endsWith('SNAPSHOT') ? repoSnapshotsUrl : repoReleasesUrl
+
+            credentials {
+                username repoUsername
+                password repoPassword
+            }
+            allowInsecureProtocol true
+        }
+
+    }
+
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
